@@ -3,7 +3,7 @@
 // @version      V3.1.3
 // @description  自动完成微软Rewards每日搜索任务,每次运行时获取抖音/微博/哔哩哔哩/百度/头条热门词,避免使用同样的搜索词被封号。
 // @note         更新于 2025年10月16日
-// @author       怀沙2049
+// @author       怀沙2049, wsky231
 // @match        https://*.bing.com/*
 // @exclude      https://rewards.bing.com/*
 // @license      GNU GPLv3
@@ -16,7 +16,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
-// @namespace    https://greasyfork.org/zh-CN/scripts/477107
+// @namespace    https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
 // @downloadURL  https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
 // @updateURL    https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
 // ==/UserScript==
