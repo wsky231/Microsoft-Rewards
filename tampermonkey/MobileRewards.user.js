@@ -2,7 +2,7 @@
 // @name         移动端微软Rewards每日任务脚本
 // @version      2025.10.16
 // @description  盒马卡，加油卡，电影卡，天猫卡，山姆卡通通都有
-// @author       怀沙2049
+// @author       怀沙2049, wsky231
 // @match        https://*.bing.com/*
 // @license      GNU GPLv3
 // @icon         https://www.bing.com/favicon.ico
@@ -17,10 +17,12 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
-// @namespace    https://greasyfork.org/zh-CN/users/1192640-huaisha1224
+// @namespace    https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
+// @downloadURL  https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
+// @updateURL    https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
 // ==/UserScript==
 
-var max_rewards = 30; //重复执行的次数
+var max_rewards = 45; //重复执行的次数
 //每执行4次搜索后插入暂停时间,解决账号被监控不增加积分的问题
 var pause_time = 9; // 暂停时长建议为16分钟,也就是960000(60000毫秒=1分钟)
 var search_words = []; //搜索词
@@ -37,6 +39,15 @@ var default_search_words = ["盛年不重来，一日难再晨", "千里之行�
 
 var keywords_source = ['ZhiHuHot','WeiBoHot','TouTiaoHot','DouYinHot', 'BaiduHot'];
 var random_keywords_source = keywords_source[Math.floor(Math.random() * keywords_source.length)]
+// 打开 bing.com 时自动启动，避免手动点击“开始”
+(function autoStartOnBingHome() {
+    const cnt = GM_getValue('Cnt');
+    const needsStart = cnt == null || cnt > max_rewards;
+    const isBingHome = /^https:\/\/(www\.|cn\.)?bing\.com\/?(\?.*)?$/.test(window.location.href);
+    if (needsStart && isBingHome) {
+        GM_setValue('Cnt', 0);
+    }
+})();
 //每次运行时随机获取一个热门搜索词来源用来作为关键词
 function douyinhot_dic() {
     // 根据 appkey 是否为空来决定如何构建 URL 地址
@@ -150,10 +161,10 @@ function exec() {
             if ((currentSearchCount + 1) % 5 === 0) {
                 // 暂停指定时长
                 setTimeout(function() {
-                    location.href = "https://cn.bing.com/search?q=" + encodeURI(nowtxt) + "&form=" + randomString + "&cvid=" + randomCvid; // 在Bing搜索引擎中搜索
+                    location.href = "https://www.bing.com/search?q=" + encodeURI(nowtxt) + "&form=" + randomString + "&cvid=" + randomCvid; // 在Bing搜索引擎中搜索
                 }, pause_time);
             } else {
-                location.href = "https://cn.bing.com/search?q=" + encodeURI(nowtxt) + "&form=" + randomString + "&cvid=" + randomCvid; // 在Bing搜索引擎中搜索
+                location.href = "https://www.bing.com/search?q=" + encodeURI(nowtxt) + "&form=" + randomString + "&cvid=" + randomCvid; // 在Bing搜索引擎中搜索
             }
         }, randomDelay);
     }
