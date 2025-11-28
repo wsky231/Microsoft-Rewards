@@ -17,9 +17,9 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
-// @namespace    https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
-// @downloadURL  https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
-// @updateURL    https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
+// @namespace    https://github.com/wsky231/Microsoft-Rewards
+// @downloadURL  https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/main/tampermonkey/PCRewards.user.js
+// @updateURL    https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/main/tampermonkey/PCRewards.user.js
 // ==/UserScript==
 
 var max_rewards = 45; //重复执行的次数
