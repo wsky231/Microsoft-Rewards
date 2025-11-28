@@ -17,6 +17,8 @@
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
 // @namespace    https://greasyfork.org/zh-CN/scripts/477107
+// @downloadURL  https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
+// @updateURL    https://raw.githubusercontent.com/wsky231/Microsoft-Rewards/refs/heads/main/tampermonkey/PCRewards.user.js
 // ==/UserScript==
 
 var max_rewards = 40; //重复执行的次数
@@ -38,6 +40,16 @@ var default_search_words = ["盛年不重来，一日难再晨", "千里之行�
 var keywords_source = ['BaiduHot', 'TouTiaoHot', 'DouYinHot', 'WeiBoHot'];
 var random_keywords_source = keywords_source[Math.floor(Math.random() * keywords_source.length)];
 var current_source_index = 0; // 当前搜索词来源的索引
+
+// 打开 bing.com 时自动启动，避免手动点击“开始”
+(function autoStartOnBingHome() {
+    const cnt = GM_getValue('Cnt');
+    const needsStart = cnt == null || cnt > max_rewards;
+    const isBingHome = /^https:\/\/(www\.|cn\.)?bing\.com\/?(\?.*)?$/.test(window.location.href);
+    if (needsStart && isBingHome) {
+        GM_setValue('Cnt', 0);
+    }
+})();
 
 /**
  * 尝试从多个搜索词来源获取搜索词，如果所有来源都失败，则返回默认搜索词。
@@ -178,10 +190,10 @@ function exec() {
             // 检查是否需要暂停
             if ((currentSearchCount + 1) % 5 === 0) {
                 setTimeout(function () {
-                    location.href = "https://cn.bing.com/search?q=" + encodeURI(nowtxt) + "&form=" + randomString + "&cvid=" + randomCvid; // 在Bing搜索引擎中搜索
+                    location.href = "https://www.bing.com/search?q=" + encodeURI(nowtxt) + "&form=" + randomString + "&cvid=" + randomCvid; // 在Bing搜索引擎中搜索
                 }, pause_time);
             } else {
-                location.href = "https://cn.bing.com/search?q=" + encodeURI(nowtxt) + "&form=" + randomString + "&cvid=" + randomCvid; // 在Bing搜索引擎中搜索
+                location.href = "https://www.bing.com/search?q=" + encodeURI(nowtxt) + "&form=" + randomString + "&cvid=" + randomCvid; // 在Bing搜索引擎中搜索
             }
         }, randomDelay);
     }
