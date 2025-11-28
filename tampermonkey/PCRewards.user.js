@@ -43,10 +43,8 @@ var current_source_index = 0; // 当前搜索词来源的索引
 
 // 打开 bing.com 时自动启动，避免手动点击“开始”
 (function autoStartOnBingHome() {
-    const cnt = GM_getValue('Cnt');
-    const needsStart = cnt == null || cnt > max_rewards;
     const isBingHome = /^https:\/\/(www\.|cn\.)?bing\.com\/?(\?.*)?$/.test(window.location.href);
-    if (needsStart && isBingHome) {
+    if (isBingHome) {
         GM_setValue('Cnt', 0);
     }
 })();
