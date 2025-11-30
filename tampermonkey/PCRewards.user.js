@@ -55,6 +55,9 @@ var current_source_index = 0; // 当前搜索词来源的索引
  * @returns {Promise<string[]>} 返回搜索到的name属性值列表或默认搜索词列表
  */
 async function douyinhot_dic() {
+    let final_words = [];
+
+    // 1. 尝试从国内热搜源获取
     while (current_source_index < keywords_source.length) {
         const source = keywords_source[current_source_index]; // 获取当前搜索词来源
         let url;        
@@ -75,7 +78,8 @@ async function douyinhot_dic() {
                 // 如果数据中存在有效项
                 // 提取每个元素的title属性值
                 const names = data.data.map(item => item.title);
-                return names; // 返回搜索到的title属性值列表
+                final_words = names;
+                break; // 成功获取，跳出循环
             }
         } catch (error) {
             // 当前来源请求失败，记录错误并尝试下一个来源
@@ -86,41 +90,51 @@ async function douyinhot_dic() {
         current_source_index++;
     }
 
-    // 所有搜索词来源都已尝试且失败
-    console.error('所有搜索词来源请求失败，尝试使用维基百科热词');
-    
-    // 尝试维基百科 (两天前，确保数据已生成)
-    try {
-        const date = new Date();
-        date.setDate(date.getDate() - 2);
-        const path = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
-        const wikiUrl = `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/zh.wikipedia/all-access/${path}`;
-        
-        const wikiWords = await new Promise(resolve => {
-            GM_xmlhttpRequest({
-                method: "GET", url: wikiUrl,
-                onload: (res) => {
-                    if (res.status === 200) {
-                        try {
-                            const items = JSON.parse(res.responseText).items?.[0]?.articles
-                                ?.map(a => a.article.replace(/_/g, ' '))
-                                ?.filter(t => !t.includes(':') && !t.includes('Main Page'));
-                            // 随机打乱数组
-                            if (items) items.sort(() => Math.random() - 0.5);
-                            resolve((items && items.length >= 50) ? items : null);
-                        } catch { resolve(null); }
-                    } else resolve(null);
-                },
-                onerror: () => resolve(null)
+    // 2. 检查数量是否足够，不足则从维基百科补充
+    if (final_words.length < max_rewards) {
+        console.log(`当前搜索词数量(${final_words.length})不足 ${max_rewards}，尝试从维基百科补充...`);
+        try {
+            const date = new Date();
+            date.setDate(date.getDate() - 2);
+            const path = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+            const wikiUrl = `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/zh.wikipedia/all-access/${path}`;
+            
+            const wikiWords = await new Promise(resolve => {
+                GM_xmlhttpRequest({
+                    method: "GET", url: wikiUrl,
+                    onload: (res) => {
+                        if (res.status === 200) {
+                            try {
+                                const items = JSON.parse(res.responseText).items?.[0]?.articles
+                                    ?.map(a => a.article.replace(/_/g, ' '))
+                                    ?.filter(t => !t.includes(':') && !t.includes('Main Page'));
+                                // 随机打乱数组
+                                if (items) items.sort(() => Math.random() - 0.5);
+                                resolve(items);
+                            } catch { resolve(null); }
+                        } else resolve(null);
+                    },
+                    onerror: () => resolve(null)
+                });
             });
-        });
-        if (wikiWords) {
-            console.log('使用维基百科热词');
-            return wikiWords;
-        }
-    } catch (e) { console.error("Wiki Error", e); }
 
-    return default_search_words; // 返回默认搜索词列表
+            if (wikiWords && wikiWords.length > 0) {
+                // 计算需要补充的数量
+                const need = max_rewards - final_words.length;
+                // 截取所需数量并合并
+                final_words = final_words.concat(wikiWords.slice(0, need + 10)); // 多取10个以防万一
+                console.log(`已补充维基百科热词，当前总数: ${final_words.length}`);
+            }
+        } catch (e) { console.error("Wiki Error", e); }
+    }
+
+    // 3. 如果最终还是为空（所有源都失败），则使用默认词
+    if (final_words.length === 0) {
+        console.error('所有搜索词来源请求失败，使用默认词');
+        return default_search_words;
+    }
+
+    return final_words;
 }
 
 // 执行搜索
