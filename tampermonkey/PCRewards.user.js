@@ -112,6 +112,8 @@ async function getGlobalSearchWords() {
                             const items = JSON.parse(res.responseText).items?.[0]?.articles
                                 ?.map(a => a.article.replace(/_/g, ' '))
                                 ?.filter(t => !t.includes(':') && !t.includes('Main Page'));
+                            // 随机打乱数组
+                            if (items) items.sort(() => Math.random() - 0.5);
                             resolve((items && items.length >= 50) ? items : null);
                         } catch { resolve(null); }
                     } else resolve(null);
@@ -134,6 +136,8 @@ async function getGlobalSearchWords() {
                     if (res.status === 200) {
                         try {
                             const titles = Array.from(new DOMParser().parseFromString(res.responseText, "text/xml").querySelectorAll("entry > title")).map(t => t.textContent);
+                            // 随机打乱数组
+                            if (titles) titles.sort(() => Math.random() - 0.5);
                             resolve(titles.length >= 10 ? titles : null);
                         } catch { resolve(null); }
                     } else resolve(null);
