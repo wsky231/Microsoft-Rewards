@@ -192,12 +192,6 @@ function generateRandomString(length) {
 }
 
 function exec() {
-    // 生成随机延迟时间
-    let randomDelay = Math.floor(Math.random() * 60000) + 20000; // 生成10秒到30秒之间的随机数
-    let randomString = generateRandomString(4); //生成4个长度的随机字符串
-    let randomCvid = generateRandomString(32); //生成32位长度的cvid
-    'use strict';
-
     // 检查计数器的值，若为空则设置为超过最大搜索次数
     if (GM_getValue('Cnt') == null) {
         GM_setValue('Cnt', max_rewards + 10);
@@ -205,6 +199,18 @@ function exec() {
 
     // 获取当前搜索次数
     let currentSearchCount = GM_getValue('Cnt');
+
+    // 生成随机延迟时间
+    let randomDelay = Math.floor(Math.random() * 60000) + 20000; // 生成20秒到80秒之间的随机数
+    
+    // 如果是第一次执行（计数为0），延迟设为3秒，快速开始
+    if (currentSearchCount === 0) {
+        randomDelay = 3000;
+    }
+
+    let randomString = generateRandomString(4); //生成4个长度的随机字符串
+    let randomCvid = generateRandomString(32); //生成32位长度的cvid
+    'use strict';
     // 根据计数器的值选择搜索引擎
     if (currentSearchCount <= max_rewards / 2) {
         let tt = document.getElementsByTagName("title")[0];
