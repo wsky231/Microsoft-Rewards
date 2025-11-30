@@ -10,7 +10,6 @@
 // @icon         https://www.bing.com/favicon.ico
 // @connect      gumengya.com
 // @connect      wikimedia.org
-// @connect      reddit.com
 // @run-at       document-end
 // @grant        GM_registerMenuCommand
 // @grant        GM_addStyle
@@ -88,15 +87,9 @@ async function douyinhot_dic() {
     }
 
     // 所有搜索词来源都已尝试且失败
-    console.error('所有搜索词来源请求失败');
-    return default_search_words; // 返回默认搜索词列表
-}
-
-/**
- * 新增：优先尝试维基百科和Reddit，失败则回退到原有的douyinhot_dic
- */
-async function getGlobalSearchWords() {
-    // 1. 尝试维基百科 (两天前，确保数据已生成)
+    console.error('所有搜索词来源请求失败，尝试使用维基百科热词');
+    
+    // 尝试维基百科 (两天前，确保数据已生成)
     try {
         const date = new Date();
         date.setDate(date.getDate() - 2);
@@ -127,36 +120,11 @@ async function getGlobalSearchWords() {
         }
     } catch (e) { console.error("Wiki Error", e); }
 
-    // 2. 尝试 Reddit WorldNews
-    try {
-        const redditWords = await new Promise(resolve => {
-            GM_xmlhttpRequest({
-                method: "GET", url: "https://www.reddit.com/r/worldnews/top/.rss?t=day",
-                onload: (res) => {
-                    if (res.status === 200) {
-                        try {
-                            const titles = Array.from(new DOMParser().parseFromString(res.responseText, "text/xml").querySelectorAll("entry > title")).map(t => t.textContent);
-                            // 随机打乱数组
-                            if (titles) titles.sort(() => Math.random() - 0.5);
-                            resolve(titles.length >= 10 ? titles : null);
-                        } catch { resolve(null); }
-                    } else resolve(null);
-                },
-                onerror: () => resolve(null)
-            });
-        });
-        if (redditWords) {
-            console.log('使用Reddit热词');
-            return redditWords;
-        }
-    } catch (e) { console.error("Reddit Error", e); }
-
-    // 3. 回退到原有逻辑
-    return douyinhot_dic();
+    return default_search_words; // 返回默认搜索词列表
 }
 
 // 执行搜索
-getGlobalSearchWords()
+douyinhot_dic()
     .then(names => {
         //   console.log(names[0]);
         search_words = names;
